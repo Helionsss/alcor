@@ -7,58 +7,84 @@
 void print(std::string filename, int lines, bool tail, char delimiter) {
     std::ifstream file(filename);
     if (file.is_open()) {
-        std::vector<std::string> outputs;
         std::string temp;
-
-        while (std::getline(file, temp, delimiter)) {
-            outputs.push_back(temp);
-        }
-
-        if (tail) {
-            for (int i = 0; i < lines; i++) {
-                std::cout << outputs[-i] << std::endl;
+        
+        if (lines >= 0) {
+            int count = 0;
+            while (std::getline(file, temp, delimiter)) {
+                std::cout << temp;
+                if (!file.eof()) {
+                    std::cout << delimiter;
+                }
+                count += 1;
+                if (count == lines) {
+                    break;
+                }
             }
         }
         else {
-            for (int i = 0; i < lines; i++) {
-                std::cout << outputs[i] << std::endl;
+            while (std::getline(file, temp, delimiter)) {
+                std::cout << temp;
+                if (!file.eof()) {
+                    std::cout << delimiter;
+                }
             }
-        }    
+        }
+        
     }
 }
 
 int main(int argc, char* argv[]) {
     std::string filename = "";
-    int lines = 0;
+    int lines = -1;
     bool tail = false;
     char delimiter = '\n';
 
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
-        if ((arg == "-l") or (arg == "--lines=")) {
-            if (arg == "-l") {
-                lines = stoi(std::string(argv[++i]));
-            }
-            else {
-                lines = stoi(arg.substr(8));
-            }
+        if (arg == "-l") {
+            lines = stoi(std::string(argv[++i]));
+        }
+        else if (arg == "--lines=") {
+            lines = stoi(arg.substr(8));
         }
         else if ((arg == "-t") or (arg == "--tail")) {
             tail = true;
         }
-        else if ((arg == "-d") or (arg == "--delimiter=")) { // t, 't', "t"
-            if (arg == "-d") {
-                i++;
-                if (std::string(argv[i]) == "-l" or argv[i] == "-t" or argv[i] == "--tail" or argv[i] == "--lines=") {
-                    std::cout << "Error";
-                    exit(0);
+        else if (arg == "-d") {
+            i++;
+            if (std::string(argv[i]) == "-l" or argv[i] == "-t" or argv[i] == "--tail" or argv[i] == "--lines=") {
+                std::cout << "Error";
+                exit(0);
+            }
+            else {
+                if (argv[i][0] == '\'' or argv[i][0] == '"') {
+                    if (argv[i][1] == '\'' or argv[i][1] == '"') {
+                        std::cout << "Error";
+                        exit(0);
+                    }
+                    else {
+                        delimiter = argv[i][1];
+                    }
                 }
                 else {
                     delimiter = argv[i][0];
                 }
             }
         }
+        else if (arg == "--delimiter="){
+            std::cout << 1;
+            if (std::string(argv[i]) == "-l" or argv[i] == "-t" or argv[i] == "--tail" or argv[i] == "--lines=") {
+                std::cout << "Error";
+                exit(0);
+            }
+            else {
+                std::cout << 1;
+                delimiter = arg.data()[12];
+            }
+        }
         else {
+            std::cout << arg;
             filename = argv[i];
         }
     }
