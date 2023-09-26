@@ -30,8 +30,8 @@ void print(std::string filename, int lines, bool tail, char delimiter) {
                 }
             }
         }
-        
     }
+    file.close();
 }
 
 int main(int argc, char* argv[]) {
